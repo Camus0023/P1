@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
+
     
 ]
 
@@ -129,6 +130,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+
+AUTHENTICATION_BACKENDS = [
+    'usuarios.backends.EmailBackend',  # Agrega tu backend personalizado
+    'django.contrib.auth.backends.ModelBackend',  # Backend por defecto
+]
+
 
 
 

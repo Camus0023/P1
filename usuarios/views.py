@@ -1,6 +1,48 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Usuario
 from .forms import UsuarioForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+
+
+def user_login(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        user = authenticate(request, username=email, password=password)  # Aquí 'username' es el email
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Credenciales inválidas. Inténtalo de nuevo.')
+    return render(request, 'usuarios/login.html')
+
+
+
+@login_required
+def dashboard(request):
+    user = request.user
+    if user.rol.nombre == 'Administración':
+        return redirect('administracion_dashboard')
+    elif user.rol.nombre == 'Portero':
+        return redirect('portero_dashboard')
+    elif user.rol.nombre == 'Residente':
+        return redirect('residente_dashboard')
+    else:
+        # Redirigir a una página de error o logout
+        return redirect('logout')
+    
+def administracion_dashboard(request):
+    return render(request, 'usuarios/administracion_dashboard.html')
+
+def portero_dashboard(request):
+    return render(request, 'usuarios/portero_dashboard.html')
+
+def residente_dashboard(request):
+    return render(request, 'usuarios/residente_dashboard.html')
 
 
 def lista_usuarios(request):
