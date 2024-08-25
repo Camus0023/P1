@@ -21,4 +21,5 @@ from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),   # Asegúrate de incluir la ruta de admin si estás utilizando el panel de administración
+    path('', include('usuarios.urls')),
 ]
