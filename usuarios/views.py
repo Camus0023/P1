@@ -22,7 +22,7 @@ def user_login(request):
 
 
 
-@login_required
+
 def dashboard(request):
     user = request.user
     if user.rol.nombre == 'Administración':
