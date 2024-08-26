@@ -9,18 +9,7 @@ from django.contrib import messages
 
 
 def user_login(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, username=email, password=password)  # Aquí 'username' es el email
-        if user is not None:
-            login(request, user)
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Credenciales inválidas. Inténtalo de nuevo.')
     return render(request, 'usuarios/login.html')
-
-
 
 
 def dashboard(request):
