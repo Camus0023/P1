@@ -110,14 +110,18 @@
     </div>
 
     <!-- Muro de Anuncios -->
+    {% for anuncio in anuncios %}
     <div class="card mb-4 border-primary">
         <div class="card-body">
-            <h5 class="card-title text-primary">Lavado de Tanques de Agua</h5>
-            <p class="card-text text-secondary">Publicado 09/08/2024 05:30 PM</p>
-            <p class="card-text">Se informa a todos propietarios y residentes que los días 13, 14 y 15 de agosto de 8:00 a.m. a 5:00 p.m. habrá corte de agua intermitente debido a que se realizará lavado de tanques de almacenamiento de agua potable.</p>
+            <h5 class="card-title text-primary">{{ anuncio.titulo }}</h5>
+            <p class="card-text text-secondary">Publicado {{ anuncio.fecha_publicacion|date:"d/m/Y H:i" }}</p>
+            <p class="card-text">{{ anuncio.contenido }}</p>
         </div>
     </div>
-
+    {% empty %}
+    <p>No hay anuncios disponibles.</p>
+    {% endfor %}
+    
     <!-- Botón Flotante para Crear Nuevas Visitas -->
     <div class="fixed-bottom d-flex justify-content-end mb-3 me-3">
         <div class="btn-group dropup">

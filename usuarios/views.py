@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Usuario
-from .forms import UsuarioForm
+from .models import Usuario, Anuncio
+from .forms import UsuarioForm, AnuncioForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
@@ -54,7 +54,8 @@ def portero_dashboard(request):
     return render(request, 'usuarios/portero_dashboard.html')
 
 def residente_dashboard(request):
-    return render(request, 'usuarios/residente_dashboard.html')
+    anuncios = Anuncio.objects.all()[:5]  # Limitamos a los 5 anuncios más recientes
+    return render(request, 'usuarios/residente_dashboard.html', {'anuncios': anuncios})
 
 
 def lista_usuarios(request):
@@ -91,3 +92,20 @@ def eliminar_usuario(request, usuario_id):
         usuario.delete()
         return redirect('administracion_dashboard')
     return render(request, 'usuarios/eliminar_usuario.html', {'usuario': usuario})
+
+
+def crear_anuncio(request):
+    if request.method == 'POST':
+        form = AnuncioForm(request.POST)
+        if form.is_valid():
+            anuncio = form.save(commit=False)
+            anuncio.autor = "administracion"
+            anuncio.save()
+            return redirect('administracion_dashboard')
+    else:
+        form = AnuncioForm()
+    return render(request, 'usuarios/crear_anuncio.html', {'form': form})
+
+def lista_anuncios(request):
+    anuncios = Anuncio.objects.all()[:5]  # Limitamos a los 5 anuncios más recientes
+    return render(request, 'lista_anuncios.html', {'anuncios': anuncios})
