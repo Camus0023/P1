@@ -8,24 +8,47 @@ from django.contrib import messages
 
 
 
+
 def user_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        rol = request.POST.get('id_rol_id')
+        user = authenticate(request, username=email, password=password)
+
+        print(email)
+        print(password)
+        print(rol)
+        
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')  # Redirige al dashboard según el rol
+        else:
+            messages.error(request, 'Credenciales incorrectas, intenta nuevamente.')
+    
     return render(request, 'usuarios/login.html')
 
 
 def dashboard(request):
-    user = request.user
-    if user.rol.nombre == 'Administración':
+    user = request.user  # Usuario autenticado
+    
+    if user.id_rol.nombre == 'Administración':
         return redirect('administracion_dashboard')
-    elif user.rol.nombre == 'Portero':
+    elif user.id_rol.nombre == 'Portero':
         return redirect('portero_dashboard')
-    elif user.rol.nombre == 'Residente':
+    elif user.id_rol.nombre == 'Residente':
         return redirect('residente_dashboard')
     else:
-        # Redirigir a una página de error o logout
+        # En caso de que el rol no esté definido correctamente
+        messages.error(request, 'No tienes permisos para acceder.')
         return redirect('logout')
-    
+
+
 def administracion_dashboard(request):
-    return render(request, 'usuarios/administracion_dashboard.html')
+    usuarios = Usuario.objects.all()
+
+    return render(request, 'usuarios/administracion_dashboard.html', {'usuarios': usuarios})
 
 def portero_dashboard(request):
     return render(request, 'usuarios/portero_dashboard.html')
