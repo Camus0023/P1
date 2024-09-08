@@ -139,6 +139,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Backend por defecto
 ]
 
+LOGOUT_REDIRECT_URL = 'login'  # Redirige al login después de cerrar sesión
+
 
 
 

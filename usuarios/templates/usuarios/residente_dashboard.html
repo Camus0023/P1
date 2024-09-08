@@ -98,22 +98,30 @@
         background-color: #149981; /* Color de fondo al pasar el cursor o al hacer foco */
         color: #ffffff; /* Color del texto al pasar el cursor o al hacer foco */
     }
+
+
+    .card-title {
+    color: #149981; /* Verde personalizado */
+    }
+
+    .card {
+        border-color: #149981; /* Verde personalizado */
+    }
+
 </style>
 
     <!-- Encabezado con saludo y clima -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Hola, Residente</h1>
         <div class="text-secondary">
-            <span class="me-3">8/9</span>
-            <span>23°C</span>
         </div>
     </div>
 
     <!-- Muro de Anuncios -->
     {% for anuncio in anuncios %}
-    <div class="card mb-4 border-primary">
+    <div class="card mb-4 " style="border-color: #149981;">
         <div class="card-body">
-            <h5 class="card-title text-primary">{{ anuncio.titulo }}</h5>
+            <h5 class="card-title" style="color: #149981;">{{ anuncio.titulo }}</h5>
             <p class="card-text text-secondary">Publicado {{ anuncio.fecha_publicacion|date:"d/m/Y H:i" }}</p>
             <p class="card-text">{{ anuncio.contenido }}</p>
         </div>

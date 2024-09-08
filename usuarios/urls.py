@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('usuarios/', views.lista_usuarios, name='lista_usuarios'),
@@ -15,4 +16,6 @@ urlpatterns = [
 
     path('crear_anuncio/', views.crear_anuncio, name='crear_anuncio'),
     path('anuncios/', views.lista_anuncios, name='lista_anuncios'),
+
+     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
