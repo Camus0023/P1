@@ -1,6 +1,20 @@
-Rama creada por Anderson sebastian jimenez mercado en la cual se trabaja
-la histroa de usuario "As a new resident, I want to register in the application." 
-En esta rama se crea un proyecto en django en donde se puede ver un template
-referente a cumplir con los criterios de aceptacion de dicha historia de usuario.
+Se hizo el sgundo taller adecuado al proyecto que se esta realizando. 
+En este commit podemos ver un manejo de roles en donde se avanzo en el rol de administrador
+el cual es el unico que puede crear perfiles de residentes y porteros, ademas de poder
+hacer todas las operaciones crud; ademas se hace uso de boootstrap 
+para la creacion de barras de navegacion, tablas dinamicas y diseño general de la web.
 
-A continuacion una imagen probatoria: ![image](https://github.com/user-attachments/assets/787e3ce6-a5c9-42ea-9ccb-555cf5cabbe9)
+![image](https://github.com/user-attachments/assets/3b0aa7db-256a-445c-8bcb-78ff2e732a2e)
+
+
+![image](https://github.com/user-attachments/assets/8abebc3a-53a9-4ddd-b4fa-a8648ecef60e)
+
+
+![image](https://github.com/user-attachments/assets/4594892f-a15a-4be4-a035-b5f78d72b873)
+
+
+![image](https://github.com/user-attachments/assets/5bbdb337-38e4-46eb-8cf8-7ca03d3801a8)
+
+
+
+![image](https://github.com/user-attachments/assets/4e37a4ac-4c3c-46fd-a1bd-c666a2474b1c)
