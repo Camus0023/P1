@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'UnitEasy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'unitease',
+        'NAME': 'uniteasy',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',   # o la dirección IP del servidor MySQL si no está en local
@@ -132,15 +132,26 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
 
 AUTHENTICATION_BACKENDS = [
     'usuarios.backends.EmailBackend',  # Agrega tu backend personalizado
     'django.contrib.auth.backends.ModelBackend',  # Backend por defecto
 ]
 
-LOGOUT_REDIRECT_URL = 'login'  # Redirige al login después de cerrar sesión
 
+AUTH_USER_MODEL = 'usuarios.Usuario'  # Reemplaza 'usuarios' con el nombre de tu app si es necesario
 
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Middleware de autenticación
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://tudominio.com',
+    'http://localhost:8000'
+]

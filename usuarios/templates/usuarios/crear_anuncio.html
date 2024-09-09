@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Crear Nuevo Anuncio</h2>
+<h2>Nuevo Anuncio</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}

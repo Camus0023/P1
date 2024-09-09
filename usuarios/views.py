@@ -5,29 +5,32 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
-
-
+from django.contrib.auth import authenticate, login
 
 def user_login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        rol = request.POST.get('id_rol_id')
-        user = authenticate(request, username=email, password=password)
-
-        print(email)
-        print(password)
-        print(rol)
-        
-        
+        email = request.POST['email']
+        password = request.POST['password']
+        print(f"Email: {email}")
+        print(f"Password: {password}")
+        user = authenticate(request, email=email, password=password)
+        print(f"User: {user}")
         if user is not None:
             login(request, user)
-            return redirect('dashboard')  # Redirige al dashboard según el rol
+            user_role_id = user.id_rol.id
+            print(f"User Role ID: {user_role_id}")
+            if user_role_id == 1:  # Administrador
+                return redirect('administracion_dashboard')
+            elif user_role_id == 3:  # Portero
+                return redirect('portero_dashboard')
+            elif user_role_id == 2:  # Residente
+                return redirect('residente_dashboard')
+            else:
+                messages.error(request, 'Rol desconocido')
         else:
-            messages.error(request, 'Credenciales incorrectas, intenta nuevamente.')
-    
+            messages.error(request, 'Credenciales incorrectas')
     return render(request, 'usuarios/login.html')
+
 
 
 def dashboard(request):
@@ -67,11 +70,12 @@ def crear_usuario(request):
     if request.method == 'POST':
         form = UsuarioForm(request.POST)
         if form.is_valid():
-            form.save()
+            form.save()  # Esto ahora encripta la contraseña antes de guardar
             return redirect('administracion_dashboard')
     else:
         form = UsuarioForm()
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
+
 
 
 def editar_usuario(request, usuario_id):

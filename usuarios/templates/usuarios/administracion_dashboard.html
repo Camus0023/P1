@@ -32,8 +32,8 @@
     }
 
     .btn-primary:hover, .btn-primary:focus {
-        background-color: #003366; /* Cambia a un color más oscuro o diferente */
-        border-color: #003366;
+        background-color: #149981; /* Cambia a un color más oscuro o diferente */
+        border-color: #149981;
     }
 
     /* Aumentar tamaño del botón circular */
@@ -106,6 +106,8 @@
 
   <h2>Lista de Usuarios</h2>
   <a href="{% url 'crear_usuario' %}" class="btn btn-primary">Crear Nuevo Usuario</a>
+  <br>
+  <br>
   <table class="table">
     <thead>
       <tr>
@@ -126,8 +128,8 @@
           <td>{{ usuario.email }}</td>
           <td>{{ usuario.id_rol.nombre }}</td>
           <td>
-            <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-warning">Editar</a>
-            <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-danger">Eliminar</a>
+            <a href="{% url 'editar_usuario' usuario.id %}" class="btn" style="color: #149981;">Editar</a>
+            <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn" style="color: #0d4f43;">Eliminar</a>
           </td>
         </tr>
       {% endfor %}

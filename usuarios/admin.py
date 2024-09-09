@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Rol, Unidad, Torre, Piso, Apartamento, Usuario
+from .models import Roles, Unidad, Torre, Piso, Apartamento, Usuario
 
-admin.site.register(Rol)
+admin.site.register(Roles)
 admin.site.register(Unidad)
 admin.site.register(Torre)
 admin.site.register(Piso)
