@@ -1,4 +1,4 @@
-#This are the requirements dor 2nd Delivery
+#This are the requirements for 2nd Delivery
 You must download django
 
 AppConfig 
@@ -25,3 +25,6 @@ messages
 os
 sys
 get_asgi_application
+admin
+include
+get_wsgi_application
