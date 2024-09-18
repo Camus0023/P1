@@ -1,0 +1,27 @@
+#This are the requirements dor 2nd Delivery
+You must download django
+
+AppConfig 
+ModelBackend
+get_user_model
+forms
+make_password
+models
+timezone
+AbstractBaseUser 
+BaseUserManager 
+PermissionsMixin
+TestCase
+path
+render
+redirect 
+get_object_or_404
+login_required
+authenticate
+login
+render 
+redirect
+messages
+os
+sys
+get_asgi_application
