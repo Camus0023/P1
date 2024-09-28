@@ -1,0 +1,13 @@
+<!-- crear_anuncio.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Nuevo Anuncio</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Publicar Anuncio</button>
+</form>
+{% endblock %}
+
+
