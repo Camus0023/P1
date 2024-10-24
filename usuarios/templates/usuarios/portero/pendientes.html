@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center" style="color: #149981;">Solicitudes Pendientes</h1>
+
+    <h2 class="mt-4">Visitas Pendientes</h2>
+    <ul>
+        {% for visita in visitas_pendientes %}
+        <li>
+            <strong>Visitante:</strong> {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - 
+            <strong>Fecha:</strong> {{ visita.fecha_visita|date:"d M Y" }} - 
+            <a href="{% url 'portero_detalle_apartamento' visita.apartamento.id %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+        </li>
+        {% empty %}
+        <p>No hay visitas pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Domicilios Pendientes</h2>
+    <ul>
+        {% for domicilio in domicilios_pendientes %}
+        <li>
+            <strong>Producto:</strong> {{ domicilio.nombre_producto }} - 
+            <strong>Proveedor:</strong> {{ domicilio.proveedor.nombre }} - 
+            <a href="{% url 'portero_detalle_apartamento' domicilio.apartamento.id %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+        </li>
+        {% empty %}
+        <p>No hay domicilios pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Paquetes Pendientes</h2>
+    <ul>
+        {% for paquete in paquetes_pendientes %}
+        <li>
+            <strong>Producto:</strong> {{ paquete.nombre_producto }} - 
+            <strong>Proveedor:</strong> {{ paquete.proveedor.nombre }} - 
+            <a href="{% url 'portero_detalle_apartamento' paquete.apartamento.id %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+        </li>
+        {% empty %}
+        <p>No hay paquetes pendientes.</p>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

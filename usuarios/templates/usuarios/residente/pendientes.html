@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Tus Pendientes</h1>
+
+    <h2 class="mt-4">Paquetes Pendientes</h2>
+    <ul>
+        {% for paquete in paquetes_pendientes %}
+        <li>
+            Paquete de {{ paquete.proveedor.nombre }} - Fecha Estimada: {{ paquete.fecha_estimacion }}
+        </li>
+        {% empty %}
+        <p>No tienes paquetes pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Domicilios Pendientes</h2>
+    <ul>
+        {% for domicilio in domicilios_pendientes %}
+        <li>
+            Domicilio de {{ domicilio.proveedor.nombre }} - Producto: {{ domicilio.nombre_producto }}
+        </li>
+        {% empty %}
+        <p>No tienes domicilios pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Visitas No Anunciadas</h2>
+    <ul>
+        {% for visita in visitas_no_anunciadas %}
+        <li>
+            Visita de {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Fecha: {{ visita.fecha_visita }}
+        </li>
+        {% empty %}
+        <p>No tienes visitas no anunciadas pendientes.</p>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

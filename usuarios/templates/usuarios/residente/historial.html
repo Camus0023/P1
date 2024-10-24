@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Historial de Residente</h1>
+
+    <h2 class="mt-4">Paquetes Recibidos</h2>
+    <ul>
+        {% for paquete in paquetes_recibidos %}
+        <li>
+            Paquete de {{ paquete.proveedor.nombre }} - Fecha Estimada: {{ paquete.fecha_estimacion }}
+        </li>
+        {% empty %}
+        <p>No has recibido paquetes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Domicilios Recibidos</h2>
+    <ul>
+        {% for domicilio in domicilios_recibidos %}
+        <li>
+            Domicilio de {{ domicilio.proveedor.nombre }} - Producto: {{ domicilio.nombre_producto }}
+        </li>
+        {% empty %}
+        <p>No has recibido domicilios.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Visitas Recibidas</h2>
+    <ul>
+        {% for visita in visitas_recibidas %}
+        <li>
+            Visita de {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Fecha: {{ visita.fecha_visita }}
+        </li>
+        {% empty %}
+        <p>No has recibido visitas.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Visitas Enviadas</h2>
+    <ul>
+        {% for visita in visitas_enviadas %}
+        <li>
+            Visitante: {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Estado: {{ visita.estado }}
+        </li>
+        {% empty %}
+        <p>No has enviado visitas.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Domicilios Enviados</h2>
+    <ul>
+        {% for domicilio in domicilios_enviados %}
+        <li>
+            Producto: {{ domicilio.nombre_producto }} - Estado: {{ domicilio.estado }}
+        </li>
+        {% empty %}
+        <p>No has enviado domicilios.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Paquetes Enviados</h2>
+    <ul>
+        {% for paquete in paquetes_enviados %}
+        <li>
+            Producto: {{ paquete.nombre_producto }} - Estado: {{ paquete.estado }}
+        </li>
+        {% empty %}
+        <p>No has enviado paquetes.</p>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

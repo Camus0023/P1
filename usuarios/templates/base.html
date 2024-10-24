@@ -1,119 +1,21 @@
-<!-- base.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 
-    <style>
-        body {
-        background-color: #e3f2fd;
-        font-family: 'Arial', sans-serif;
-    }
-    
-        h1 {
-            color: #149981;
-        }
-    
-        .navbar {
-            background-color: #149981 !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    
-        .navbar-brand {
-            color: #ffffff !important;
-            font-weight: bold;
-        }
-    
-        .navbar-nav .nav-link {
-            color: #ffffff !important;
-        }
-    
-        .btn-primary {
-            background-color: #149981 !important;
-            border-color: #149981 !important;
-        }
-    
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: #003366; /* Cambia a un color más oscuro o diferente */
-            border-color: #003366;
-        }
-    
-        /* Aumentar tamaño del botón circular */
-        .btn-group.dropup .btn {
-            width: 60px; /* Ancho del botón */
-            height: 60px; /* Altura del botón */
-            font-size: 30px; /* Tamaño de la fuente del botón */
-            line-height: 1; /* Ajustar la altura de línea para centrar el texto */
-            border-radius: 50%; /* Asegura que el botón sea circular */
-        }
-    
-        /* Aumentar tamaño del menú desplegable */
-        .btn-group.dropup .dropdown-menu {
-            border-radius: 12px !important; /* Radio del borde del menú desplegable */
-            background-color: #149981 !important;
-            padding: 0; /* Ajuste del padding para el tamaño del menú */
-        }
-    
-        /* Aumentar tamaño de las opciones del menú desplegable */
-        .btn-group.dropup .dropdown-item {
-            font-size: 18px; /* Tamaño de la fuente de las opciones del menú */
-            padding: 12px 20px; /* Padding para aumentar el área clickeable */
-            color: #ffffff !important; /* Color del texto de las opciones */
-        }
-    
-        .btn-group.dropup .dropdown-item:hover, .btn-group.dropup .dropdown-item:focus {
-            background-color: #003366 !important; /* Cambia el color de fondo de las opciones en hover */
-            color: #ffffff !important; /* Asegura que el color del texto se mantenga blanco */
-        }
-    
-        /* Estilos para los botones de torres */
-        .btn-lg {
-            font-size: 20px; /* Tamaño de la fuente de los botones */
-            padding: 20px; /* Padding para aumentar el tamaño del botón */
-        }
-    
-        /* Estilo del botón de perfil */
-        .btn-secondary {
-            background-color: #0d4f43; /* Color de fondo del botón */
-            border-color: #0d4f43; /* Color del borde del botón */
-        }
-    
-        .btn-secondary:hover, .btn-secondary:focus {
-            background-color: #0d4f43; /* Color de fondo al pasar el cursor o al hacer foco */
-            border-color: #0d4f43; /* Color del borde al pasar el cursor o al hacer foco */
-            color: #ffffff; /* Color del texto del botón */
-        }
-    
-        /* Estilo del menú desplegable */
-        .dropdown-menu {
-            background-color: #0d4f43; /* Color de fondo del menú desplegable */
-            border: 1px solid #149981; /* Color del borde del menú desplegable */
-        }
-    
-        /* Estilo de las opciones del menú desplegable */
-        .dropdown-menu .dropdown-item {
-            color: #ffffff; /* Color del texto de las opciones */
-        }
-    
-        .dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item:focus {
-            background-color: #149981; /* Color de fondo al pasar el cursor o al hacer foco */
-            color: #ffffff; /* Color del texto al pasar el cursor o al hacer foco */
-        }
-    </style>
-
+    <title>Mi Aplicación</title>
 </head>
 <body>
 
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <!-- Logo y título -->
             <div class="d-flex flex-column align-items-start">
-                <a class="navbar-brand text-primary" href="#">
-                </a>
+                <a class="navbar-brand text-primary" href="#"></a>
             </div>
-            <!-- Opciones de perfil -->
             <div class="dropdown ms-auto">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     Perfil
@@ -125,29 +27,41 @@
                 </ul>
             </div>
         </div>
-        <!-- Opciones de navegación alineadas horizontalmente debajo del logo -->
+
         <div class="container-fluid mt-2">
             <ul class="navbar-nav d-flex flex-row justify-content-start w-100">
                 <li class="nav-item me-3">
-                    <a class="nav-link active text-primary" href="#">Inicio</a>
+                    {% if rol_usuario == "Residente" %}
+                        <a class="nav-link active text-primary" href="{% url 'residente_dashboard' %}">Inicio</a>
+                    {% elif rol_usuario == "Portero" %}
+                        <a class="nav-link active text-primary" href="{% url 'portero_dashboard' %}">Inicio</a>
+                    {% elif rol_usuario == "Administrador" %}
+                        <a class="nav-link active text-primary" href="{% url 'administrador_dashboard' %}">Inicio</a>
+                    {% endif %}
                 </li>
                 <li class="nav-item me-3">
-                    <a class="nav-link text-primary" href="#">Pendientes</a>
+                    {% if rol_usuario == "Residente" %}
+                        <a class="nav-link text-primary" href="{% url 'pendientes_residente' %}">Pendientes</a>
+                    {% elif rol_usuario == "Portero" %}
+                        <a class="nav-link text-primary" href="{% url 'pendientes_portero' %}">Pendientes</a>
+                    {% endif %}
                 </li>
                 <li class="nav-item me-3">
-                    <a class="nav-link text-primary" href="#">Historial</a>
+                    {% if rol_usuario == "Residente" %}
+                        <a class="nav-link text-primary" href="{% url 'historial_residente' %}">Historial</a>
+                    {% elif rol_usuario == "Portero" %}
+                        <a class="nav-link text-primary" href="{% url 'historial_portero' %}">Historial</a>
+                    {% endif %}
                 </li>
             </ul>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <!-- Aquí va el contenido específico de cada página -->
         {% block content %}
         {% endblock %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"></script>
 </body>
 </html>

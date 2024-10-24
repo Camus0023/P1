@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Historial del Portero</h1>
+
+    <h2 class="mt-4">Visitas Confirmadas</h2>
+    <ul>
+        {% for visita in visitas_confirmadas %}
+        <li>
+            Visita de {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Confirmada para el apartamento {{ visita.apartamento.numero }}
+        </li>
+        {% empty %}
+        <p>No has confirmado visitas.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Domicilios Confirmados</h2>
+    <ul>
+        {% for domicilio in domicilios_confirmados %}
+        <li>
+            Domicilio de {{ domicilio.proveedor.nombre }} - Confirmado para el apartamento {{ domicilio.apartamento.numero }}
+        </li>
+        {% empty %}
+        <p>No has confirmado domicilios.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Paquetes Confirmados</h2>
+    <ul>
+        {% for paquete in paquetes_confirmados %}
+        <li>
+            Paquete de {{ paquete.proveedor.nombre }} - Confirmado para el apartamento {{ paquete.apartamento.numero }}
+        </li>
+        {% empty %}
+        <p>No has confirmado paquetes.</p>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

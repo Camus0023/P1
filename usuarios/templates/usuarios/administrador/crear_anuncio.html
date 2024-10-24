@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Nuevo Anuncio</h2>
+
+<!-- Mostrar los errores del formulario, si existen -->
+{% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field, errors in form.errors.items %}
+                <li>{{ field }}: {{ errors }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<!-- El formulario debería estar aquí -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Publicar Anuncio</button>
+</form>
+{% endblock %}

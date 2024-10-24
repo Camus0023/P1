@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center" style="color: #149981;">Solicitudes para Apartamento {{ apartamento.numero }}</h1>
+    
+    <h2 class="mt-4">Verificar QR de Visita Frecuente</h2>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'verificar_qr' apartamento.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="qr_image" class="form-label" style="color: #149981;">Subir imagen del QR</label>
+            <input type="file" class="form-control" id="qr_image" name="qr_image" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Verificar QR</button>
+    </form>
+
+    <h2 class="mt-4">Visitas Pendientes</h2>
+    <ul>
+        {% for visita in visitas_pendientes %}
+        <li>
+            {{ visita.nombre_visitante }} - 
+            <form method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="solicitud_id" value="{{ visita.id }}">
+                <input type="hidden" name="tipo" value="visita">
+                <button type="submit" class="btn btn-success">Confirmar</button>
+            </form>
+        </li>
+        {% empty %}
+        <p>No hay visitas pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <!-- Mostrar domicilios y paquetes de forma organizada -->
+    <h2 class="mt-4">Domicilios Pendientes</h2>
+    <ul>
+        {% for domicilio in domicilios_pendientes %}
+        <li>
+            <strong>Proveedor:</strong> {{ domicilio.proveedor.nombre }}<br>
+            <strong>Producto:</strong> {{ domicilio.nombre_producto }}<br>
+            <form method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="solicitud_id" value="{{ domicilio.id }}">
+                <input type="hidden" name="tipo" value="domicilio">
+                <button type="submit" class="btn btn-success">Confirmar</button>
+            </form>
+        </li>
+        {% empty %}
+        <p>No hay domicilios pendientes.</p>
+        {% endfor %}
+    </ul>
+
+    <h2 class="mt-4">Paquetes Pendientes</h2>
+    <ul>
+        {% for paquete in paquetes_pendientes %}
+        <li>
+            <strong>Proveedor:</strong> {{ paquete.proveedor.nombre }}<br>
+            <strong>Producto:</strong> {{ paquete.nombre_producto }}<br>
+            <form method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="solicitud_id" value="{{ paquete.id }}">
+                <input type="hidden" name="tipo" value="paquete">
+                <button type="submit" class="btn btn-success">Confirmar</button>
+            </form>
+        </li>
+        {% empty %}
+        <p>No hay paquetes pendientes.</p>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
