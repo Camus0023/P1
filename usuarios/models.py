@@ -116,13 +116,14 @@ class Visita(models.Model):
     fecha_expiracion_frecuente = models.DateTimeField(null=True, blank=True)
     estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
     qr_code = models.ImageField(upload_to='qr_codes', blank=True)
-    mensaje_qr = models.CharField(max_length=255, unique=True, blank=True)  # Campo para el mensaje QR único
+    mensaje_qr = models.CharField(max_length=255, unique=True, blank=True, null=True)  # Permitir valores NULL para visitas no frecuentes
     apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        if self.es_frecuente and not self.qr_code:
-            # Generar un mensaje único para el QR (puede ser cualquier string único)
-            self.mensaje_qr = f"visita-{self.apartamento.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        if self.es_frecuente:
+            if not self.mensaje_qr:
+                # Generar un mensaje único para el QR
+                self.mensaje_qr = f"visita-{self.apartamento.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
             
             # Generar el código QR con ese mensaje único
             qr_image = qrcode.make(self.mensaje_qr)
@@ -130,11 +131,15 @@ class Visita(models.Model):
             qr_image.save(buffer, format='PNG')
             file_name = f'{self.nombre_visitante}_{self.apellido_visitante}_qr.png'
             self.qr_code.save(file_name, File(buffer), save=False)
-            
+        else:
+            # Asegurarse de que mensaje_qr esté en None si no es una visita frecuente
+            self.mensaje_qr = None
+        
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Visita de {self.nombre_visitante} {self.apellido_visitante} - {self.estado}"
+
 
 
 class Domicilio(models.Model):
