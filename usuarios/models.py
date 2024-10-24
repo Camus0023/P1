@@ -1,6 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+import qrcode
+from PIL import Image
+from pyzbar.pyzbar import decode
+from io import BytesIO
+from django.core.files import File
+from django.contrib.auth.models import User
 
 class Unidad(models.Model):
     nombre = models.CharField(max_length=50)
@@ -84,3 +90,85 @@ class Anuncio(models.Model):
 
     class Meta:
         ordering = ['-fecha_publicacion']
+
+class Proveedor(models.Model):
+    TIPO_CHOICES = [
+        ('domicilio', 'Domicilio'),
+        ('paquete', 'Paquete'),
+    ]
+    
+    nombre = models.CharField(max_length=100, unique=True)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)  # Puede ser 'domicilio' o 'paquete'
+
+    def __str__(self):
+        return f"{self.nombre} - {self.get_tipo_display()}"
+
+class Visita(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmada', 'Confirmada'),
+    ]
+
+    nombre_visitante = models.CharField(max_length=100)
+    apellido_visitante = models.CharField(max_length=100)
+    fecha_visita = models.DateTimeField()
+    es_frecuente = models.BooleanField(default=False)
+    fecha_expiracion_frecuente = models.DateTimeField(null=True, blank=True)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True)
+    mensaje_qr = models.CharField(max_length=255, unique=True, blank=True)  # Campo para el mensaje QR único
+    apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if self.es_frecuente and not self.qr_code:
+            # Generar un mensaje único para el QR (puede ser cualquier string único)
+            self.mensaje_qr = f"visita-{self.apartamento.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+            
+            # Generar el código QR con ese mensaje único
+            qr_image = qrcode.make(self.mensaje_qr)
+            buffer = BytesIO()
+            qr_image.save(buffer, format='PNG')
+            file_name = f'{self.nombre_visitante}_{self.apellido_visitante}_qr.png'
+            self.qr_code.save(file_name, File(buffer), save=False)
+            
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Visita de {self.nombre_visitante} {self.apellido_visitante} - {self.estado}"
+
+
+class Domicilio(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+    ]
+
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, limit_choices_to={'tipo': 'domicilio'})
+    proveedor_personalizado = models.CharField(max_length=100, blank=True, null=True)
+    nombre_producto = models.CharField(max_length=100, blank=True, null=True)
+    fecha_anuncio = models.DateTimeField(default=timezone.now)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Domicilio de {self.proveedor} para el apartamento {self.apartamento}"
+    
+
+class Paquete(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+    ]
+
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, limit_choices_to={'tipo': 'paquete'})
+    proveedor_personalizado = models.CharField(max_length=100, blank=True, null=True)
+    nombre_producto = models.CharField(max_length=100, blank=True, null=True)
+    fecha_anuncio = models.DateTimeField(default=timezone.now)
+    fecha_estimacion = models.DateField(null=True, blank=True)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Paquete de {self.proveedor} para el apartamento {self.apartamento}"
+
+
