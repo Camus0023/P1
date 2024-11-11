@@ -103,10 +103,12 @@ class Proveedor(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.get_tipo_display()}"
 
+# models.py
 class Visita(models.Model):
     ESTADOS = [
         ('pendiente', 'Pendiente'),
         ('confirmada', 'Confirmada'),
+        ('rechazada', 'Rechazada'),
     ]
 
     nombre_visitante = models.CharField(max_length=100)
@@ -115,30 +117,51 @@ class Visita(models.Model):
     es_frecuente = models.BooleanField(default=False)
     fecha_expiracion_frecuente = models.DateTimeField(null=True, blank=True)
     estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
-    qr_code = models.ImageField(upload_to='qr_codes', blank=True)
-    mensaje_qr = models.CharField(max_length=255, unique=True, blank=True, null=True)  # Permitir valores NULL para visitas no frecuentes
+    notificacion = models.BooleanField(default=False)  # Notificación al residente
     apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
-
-    def save(self, *args, **kwargs):
-        if self.es_frecuente:
-            if not self.mensaje_qr:
-                # Generar un mensaje único para el QR
-                self.mensaje_qr = f"visita-{self.apartamento.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
-            
-            # Generar el código QR con ese mensaje único
-            qr_image = qrcode.make(self.mensaje_qr)
-            buffer = BytesIO()
-            qr_image.save(buffer, format='PNG')
-            file_name = f'{self.nombre_visitante}_{self.apellido_visitante}_qr.png'
-            self.qr_code.save(file_name, File(buffer), save=False)
-        else:
-            # Asegurarse de que mensaje_qr esté en None si no es una visita frecuente
-            self.mensaje_qr = None
-        
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Visita de {self.nombre_visitante} {self.apellido_visitante} - {self.estado}"
+
+
+class Domicilio(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, limit_choices_to={'tipo': 'domicilio'})
+    proveedor_personalizado = models.CharField(max_length=100, blank=True, null=True)
+    nombre_producto = models.CharField(max_length=100, blank=True, null=True)
+    fecha_anuncio = models.DateTimeField(default=timezone.now)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    notificacion = models.BooleanField(default=False)  # Notificación al residente
+    apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Domicilio de {self.proveedor} para el apartamento {self.apartamento}"
+
+
+class Paquete(models.Model):
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+        ('recogido', 'Recogido'),
+    ]
+
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, limit_choices_to={'tipo': 'paquete'})
+    proveedor_personalizado = models.CharField(max_length=100, blank=True, null=True)
+    nombre_producto = models.CharField(max_length=100, blank=True, null=True)
+    fecha_anuncio = models.DateTimeField(default=timezone.now)
+    fecha_estimacion = models.DateField(null=True, blank=True)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
+    notificacion = models.BooleanField(default=False)  # Notificación al residente
+    apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Paquete de {self.proveedor} para el apartamento {self.apartamento}"
+
 
 
 

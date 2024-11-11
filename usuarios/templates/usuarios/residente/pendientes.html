@@ -8,7 +8,11 @@
     <ul>
         {% for paquete in paquetes_pendientes %}
         <li>
-            Paquete de {{ paquete.proveedor.nombre }} - Fecha Estimada: {{ paquete.fecha_estimacion }}
+            {% if paquete.proveedor %}
+                Paquete de {{ paquete.proveedor.nombre }} - Fecha Estimada: {{ paquete.fecha_estimacion }}
+            {% else %}
+                Paquete inesperado - Fecha de Llegada: {{ paquete.fecha_anuncio }}
+            {% endif %}
         </li>
         {% empty %}
         <p>No tienes paquetes pendientes.</p>
@@ -19,7 +23,11 @@
     <ul>
         {% for domicilio in domicilios_pendientes %}
         <li>
-            Domicilio de {{ domicilio.proveedor.nombre }} - Producto: {{ domicilio.nombre_producto }}
+            {% if domicilio.proveedor %}
+                Domicilio de {{ domicilio.proveedor.nombre }} - Producto: {{ domicilio.nombre_producto }}
+            {% else %}
+                Domicilio inesperado de la empresa {{ domicilio.proveedor.nombre }}
+            {% endif %}
         </li>
         {% empty %}
         <p>No tienes domicilios pendientes.</p>
@@ -31,6 +39,7 @@
         {% for visita in visitas_no_anunciadas %}
         <li>
             Visita de {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Fecha: {{ visita.fecha_visita }}
+            <p class="text-success">Visita inesperada</p>
         </li>
         {% empty %}
         <p>No tienes visitas no anunciadas pendientes.</p>

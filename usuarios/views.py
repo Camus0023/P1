@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Usuario, Anuncio, Apartamento, Piso, Torre, Visita, Unidad, Paquete, Proveedor, Domicilio
-from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm
+from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm,DomicilioInesperadoForm, PaqueteInesperadoForm, VisitaInesperadaForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -286,16 +286,17 @@ def verificar_qr(request, apartamento_id):
     return render(request, 'usuarios/portero/verificar_qr.html', {'apartamento_id': apartamento_id})
 
 def pendientes_portero(request):
-    # Obtener todas las visitas, domicilios y paquetes que estén en estado 'pendiente'
-    visitas_pendientes = Visita.objects.filter(estado='pendiente')
-    domicilios_pendientes = Domicilio.objects.filter(estado='pendiente')
-    paquetes_pendientes = Paquete.objects.filter(estado='pendiente')
+    tipo = request.GET.get('tipo')
     
-    # Pasamos las listas de pendientes al template
+    visitas_pendientes = Visita.objects.filter(estado='pendiente', notificacion=False) if tipo == 'visita' else None
+    domicilios_pendientes = Domicilio.objects.filter(estado='pendiente', notificacion=False) if tipo == 'domicilio' else None
+    paquetes_pendientes = Paquete.objects.filter(estado='pendiente', notificacion=False) if tipo == 'paquete' else None
+
     return render(request, 'usuarios/portero/pendientes.html', {
         'visitas_pendientes': visitas_pendientes,
         'domicilios_pendientes': domicilios_pendientes,
         'paquetes_pendientes': paquetes_pendientes,
+        'tipo': tipo  # Pasar el tipo al template para mostrar el tipo específico
     })
 
 def pendientes_residente(request):
@@ -305,7 +306,9 @@ def pendientes_residente(request):
     # Consultar los pendientes del apartamento del residente
     paquetes_pendientes = Paquete.objects.filter(apartamento=apartamento, estado='pendiente')
     domicilios_pendientes = Domicilio.objects.filter(apartamento=apartamento, estado='pendiente')
-    visitas_no_anunciadas = Visita.objects.filter(apartamento=apartamento, estado='no_anunciada')
+    
+    # Incluir visitas inesperadas y no anunciadas
+    visitas_no_anunciadas = Visita.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=True)
 
     context = {
         'paquetes_pendientes': paquetes_pendientes,
@@ -356,3 +359,87 @@ def historial_portero(request):
 
     return render(request, 'usuarios/portero/historial.html', context)
 
+
+
+
+
+
+def notificaciones_residente(request):
+    apartamento = request.user.id_apartamento
+
+    # Obtener notificaciones de visitas, domicilios y paquetes pendientes
+    visitas_notificadas = Visita.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+    domicilios_notificados = Domicilio.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+    paquetes_notificados = Paquete.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+
+    if request.method == 'POST':
+        solicitud_id = request.POST.get('solicitud_id')
+        tipo = request.POST.get('tipo')
+        accion = request.POST.get('accion')
+
+        if tipo == 'visita':
+            visita = get_object_or_404(Visita, id=solicitud_id)
+            visita.estado = 'confirmada' if accion == 'confirmar' else 'rechazada'
+            visita.notificacion = False
+            visita.save()
+        
+        elif tipo == 'domicilio':
+            domicilio = get_object_or_404(Domicilio, id=solicitud_id)
+            domicilio.estado = 'confirmado' if accion == 'confirmar' else 'rechazado'
+            domicilio.notificacion = False
+            domicilio.save()
+        
+        messages.success(request, "Acción realizada con éxito.")
+        return redirect('notificaciones_residente')
+
+    return render(request, 'usuarios/residente/notificaciones.html', {
+        'visitas_notificadas': visitas_notificadas,
+        'domicilios_notificados': domicilios_notificados,
+        'paquetes_notificados': paquetes_notificados,
+    })
+
+
+
+def crear_visita_inesperada(request):
+    if request.method == 'POST':
+        form = VisitaInesperadaForm(request.POST)
+        if form.is_valid():
+            visita = form.save(commit=False)
+            visita.estado = 'pendiente'
+            visita.notificacion = True  # Para que aparezca en los pendientes del residente
+            visita.save()
+            messages.success(request, "Visita inesperada registrada correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = VisitaInesperadaForm()
+    return render(request, 'usuarios/portero/crear_visita_inesperada.html', {'form': form})
+
+
+def crear_domicilio_inesperado(request):
+    if request.method == 'POST':
+        form = DomicilioInesperadoForm(request.POST)
+        if form.is_valid():
+            domicilio = form.save(commit=False)
+            domicilio.estado = 'pendiente'
+            domicilio.notificacion = True  # Para que aparezca en los pendientes del residente
+            domicilio.save()
+            messages.success(request, "Domicilio inesperado registrado correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = DomicilioInesperadoForm()
+    return render(request, 'usuarios/portero/crear_domicilio_inesperado.html', {'form': form})
+
+
+def crear_paquete_inesperado(request):
+    if request.method == 'POST':
+        form = PaqueteInesperadoForm(request.POST)
+        if form.is_valid():
+            paquete = form.save(commit=False)
+            paquete.estado = 'pendiente'
+            paquete.notificacion = True  # Para que aparezca en los pendientes del residente
+            paquete.save()
+            messages.success(request, "Paquete inesperado registrado correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = PaqueteInesperadoForm()
+    return render(request, 'usuarios/portero/crear_paquete_inesperado.html', {'form': form})

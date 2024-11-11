@@ -34,11 +34,16 @@ urlpatterns = [
     path('residente/pendientes/', views.pendientes_residente, name='pendientes_residente'),
     path('residente/historial/', views.historial_residente, name='historial_residente'),
     path('portero/historial/', views.historial_portero, name='historial_portero'),
-     path('portero/verificar_qr/<int:apartamento_id>/', views.verificar_qr, name='verificar_qr'),
+    path('portero/verificar_qr/<int:apartamento_id>/', views.verificar_qr, name='verificar_qr'),
     path('residente/confirmacion_visita_frecuente/<int:visita_id>/', views.confirmacion_visita_frecuente, name='confirmacion_visita_frecuente'),
 
+    # Nueva ruta para las notificaciones del residente
+    path('residente/notificaciones/', views.notificaciones_residente, name='notificaciones_residente'),
+
+    path('portero/crear-visita-inesperada/', views.crear_visita_inesperada, name='crear_visita_inesperada'),
+    path('portero/crear-domicilio-inesperado/', views.crear_domicilio_inesperado, name='crear_domicilio_inesperado'),
+    path('portero/crear-paquete-inesperado/', views.crear_paquete_inesperado, name='crear_paquete_inesperado'),
 
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
-
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
