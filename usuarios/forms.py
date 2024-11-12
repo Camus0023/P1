@@ -79,3 +79,54 @@ class PaqueteForm(forms.ModelForm):
             raise forms.ValidationError("Debe especificar el nombre del proveedor personalizado si selecciona 'Otro'.")
         
         return cleaned_data
+
+class VisitaInesperadaForm(forms.ModelForm):
+    class Meta:
+        model = Visita
+        fields = ['nombre_visitante', 'apellido_visitante', 'fecha_visita', 'apartamento']
+        widgets = {
+            'fecha_visita': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+        labels = {
+            'nombre_visitante': 'Nombre del Visitante',
+            'apellido_visitante': 'Apellido del Visitante',
+            'fecha_visita': 'Fecha y Hora de la Visita',
+            'apartamento': 'Apartamento'
+        }
+
+
+class DomicilioInesperadoForm(forms.ModelForm):
+    class Meta:
+        model = Domicilio
+        fields = ['proveedor', 'apartamento']
+        labels = {
+            'proveedor': 'Empresa de Domicilio',
+            'apartamento': 'Apartamento'
+        }
+
+
+class PaqueteInesperadoForm(forms.ModelForm):
+    class Meta:
+        model = Paquete
+        fields = ['fecha_anuncio', 'apartamento']
+        widgets = {
+            'fecha_anuncio': forms.DateInput(attrs={'type': 'date'}),
+        }
+        labels = {
+            'fecha_anuncio': 'Fecha de Llegada',
+            'apartamento': 'Apartamento'
+        }
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'email', 'foto_perfil']
+        widgets = {
+            'email': forms.EmailInput(attrs={'readonly': 'readonly'}),  # Solo lectura para email
+        }
+
+
+class FotoPerfilForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['foto_perfil']

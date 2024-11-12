@@ -2,15 +2,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center" style="color: #149981;">Registrar Nuevo Domicilio</h1>
-    <div class="card mt-4" style="border-color: #149981;">
+    <h1 class="text-center" >Registrar Nuevo Domicilio</h1>
+    <div class="card mt-4" >
         <div class="card-body">
             <form method="POST" action="{% url 'nuevo_domicilio' %}">
                 {% csrf_token %}
                 
                 <!-- Botón para abrir el modal de selección de proveedores -->
                 <div class="mb-3">
-                    <label for="proveedor" class="form-label" style="color: #149981;">Seleccionar Proveedor</label>
+                    <label for="proveedor" class="form-label" >Seleccionar Proveedor</label>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proveedorModal">
                         Seleccionar Proveedor
                     </button>
@@ -18,7 +18,7 @@
 
                 <!-- Indicador del proveedor seleccionado -->
                 <div class="mb-3">
-                    <label for="proveedor_seleccionado" class="form-label" style="color: #149981;">Proveedor Seleccionado:</label>
+                    <label for="proveedor_seleccionado" class="form-label" >Proveedor Seleccionado:</label>
                     <input type="text" class="form-control" id="proveedor_seleccionado" name="proveedor_seleccionado" readonly>
                 </div>
 
@@ -27,12 +27,12 @@
 
                 <!-- Campo para el proveedor personalizado -->
                 <div class="mb-3 d-none" id="proveedor_personalizado_container">
-                    <label for="proveedor_personalizado" class="form-label" style="color: #149981;">Nombre del proveedor personalizado</label>
+                    <label for="proveedor_personalizado" class="form-label" >Nombre del proveedor personalizado</label>
                     <input type="text" class="form-control" id="proveedor_personalizado" name="proveedor_personalizado" placeholder="Nombre del proveedor personalizado">
                 </div>
                 
                 <div class="mb-3">
-                    <label for="nombre_producto" class="form-label" style="color: #149981;">Nombre del producto (opcional)</label>
+                    <label for="nombre_producto" class="form-label" >Nombre del producto (opcional)</label>
                     <input type="text" class="form-control" id="nombre_producto" name="nombre_producto" placeholder="Nombre del producto">
                 </div>
                 <div class="text-center">
@@ -48,7 +48,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="proveedorModalLabel" style="color: #149981;">Seleccionar Proveedor</h5>
+                <h5 class="modal-title" id="proveedorModalLabel" >Seleccionar Proveedor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

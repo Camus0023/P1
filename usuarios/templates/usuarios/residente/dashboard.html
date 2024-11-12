@@ -11,9 +11,9 @@
 
     <!-- Muro de Anuncios -->
     {% for anuncio in anuncios %}
-    <div class="card mb-4 " style="border-color: #149981;">
+    <div class="card mb-4 " >
         <div class="card-body">
-            <h5 class="card-title" style="color: #149981;">{{ anuncio.titulo }}</h5>
+            <h5 class="card-title" >{{ anuncio.titulo }}</h5>
             <p class="card-text text-secondary">Publicado {{ anuncio.fecha_publicacion|date:"d/m/Y H:i" }}</p>
             <p class="card-text">{{ anuncio.contenido }}</p>
         </div>
@@ -36,3 +36,4 @@
         </div>
     </div>
 {% endblock %}
+

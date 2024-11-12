@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Usuario, Anuncio, Apartamento, Piso, Torre, Visita, Unidad, Paquete, Proveedor, Domicilio
-from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm
+from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm, DomicilioInesperadoForm, PaqueteInesperadoForm, VisitaInesperadaForm, FotoPerfilForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 import qrcode
 from PIL import Image
 from pyzbar.pyzbar import decode
+from django.db import models
 
 def user_login(request):
     if request.method == 'POST':
@@ -53,8 +54,20 @@ def administrador_dashboard(request):
     return render(request, 'usuarios/administrador/dashboard.html', {'usuarios': usuarios})  # Actualizado a la nueva estructura
 
 def residente_dashboard(request):
+    apartamento = request.user.id_apartamento
+
+    # Verificar pendientes para el residente
+    tiene_pendientes = (
+        Paquete.objects.filter(apartamento=apartamento, estado='pendiente').exists() or
+        Domicilio.objects.filter(apartamento=apartamento, estado='pendiente').exists() or
+        Visita.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=True).exists()
+    )
+
     anuncios = Anuncio.objects.all()[:5]  # Limitamos a los 5 anuncios más recientes
-    return render(request, 'usuarios/residente/dashboard.html', {'anuncios': anuncios})  # Actualizado a la nueva estructura
+    return render(request, 'usuarios/residente/dashboard.html', {
+        'anuncios': anuncios,
+        'tiene_pendientes': tiene_pendientes
+    })
 
 
 def lista_usuarios(request):
@@ -196,16 +209,21 @@ def nuevo_paquete(request):
 
 
 def portero_dashboard(request):
-    # Obtener la primera unidad disponible
-    unidad = Unidad.objects.first()
-    
-    # Si hay una unidad disponible, mostrar sus torres
-    if unidad:
-        torres = Torre.objects.filter(id_unidad=unidad)
-    else:
-        torres = []
+    # Verificar pendientes para el portero
+    tiene_pendientes = (
+        Paquete.objects.filter(estado='pendiente', notificacion=False).exists() or
+        Domicilio.objects.filter(estado='pendiente', notificacion=False).exists() or
+        Visita.objects.filter(estado='pendiente', notificacion=False).exists()
+    )
 
-    return render(request, 'usuarios/portero/torres.html', {'torres': torres, 'unidad': unidad})
+    unidad = Unidad.objects.first()
+    torres = Torre.objects.filter(id_unidad=unidad) if unidad else []
+
+    return render(request, 'usuarios/portero/torres.html', {
+        'torres': torres,
+        'unidad': unidad,
+        'tiene_pendientes': tiene_pendientes
+    })
 
 def portero_apartamentos(request, piso_id):
     piso = get_object_or_404(Piso, id=piso_id)
@@ -225,10 +243,10 @@ def portero_pisos(request, torre_id):
 def portero_detalle_apartamento(request, apartamento_id):
     apartamento = get_object_or_404(Apartamento, id=apartamento_id)
     
-    # Obtener visitas, domicilios y paquetes pendientes asociados al apartamento
-    visitas_pendientes = Visita.objects.filter(apartamento=apartamento, estado='pendiente')
-    domicilios_pendientes = Domicilio.objects.filter(apartamento=apartamento, estado='pendiente')
-    paquetes_pendientes = Paquete.objects.filter(apartamento=apartamento, estado='pendiente')
+    # Obtener visitas, domicilios y paquetes pendientes asociados al apartamento, excluyendo los inesperados
+    visitas_pendientes = Visita.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=False)
+    domicilios_pendientes = Domicilio.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=False)
+    paquetes_pendientes = Paquete.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=False)
 
     # Confirmar solicitudes (si el portero confirma algo)
     if request.method == 'POST':
@@ -254,6 +272,7 @@ def portero_detalle_apartamento(request, apartamento_id):
         'domicilios_pendientes': domicilios_pendientes,
         'paquetes_pendientes': paquetes_pendientes,
     })
+
 
 
 def verificar_qr(request, apartamento_id):
@@ -286,73 +305,243 @@ def verificar_qr(request, apartamento_id):
     return render(request, 'usuarios/portero/verificar_qr.html', {'apartamento_id': apartamento_id})
 
 def pendientes_portero(request):
-    # Obtener todas las visitas, domicilios y paquetes que estén en estado 'pendiente'
-    visitas_pendientes = Visita.objects.filter(estado='pendiente')
-    domicilios_pendientes = Domicilio.objects.filter(estado='pendiente')
-    paquetes_pendientes = Paquete.objects.filter(estado='pendiente')
-    
-    # Pasamos las listas de pendientes al template
+    # Obtener todas las visitas, domicilios y paquetes con estado 'pendiente' que NO son inesperados
+    visitas_pendientes = Visita.objects.filter(estado='pendiente', notificacion=False)
+    domicilios_pendientes = Domicilio.objects.filter(estado='pendiente', notificacion=False)
+    paquetes_pendientes = Paquete.objects.filter(estado='pendiente', notificacion=False)
+
+    # Pasamos los objetos pendientes al contexto para que se muestren en la plantilla del portero
     return render(request, 'usuarios/portero/pendientes.html', {
         'visitas_pendientes': visitas_pendientes,
         'domicilios_pendientes': domicilios_pendientes,
-        'paquetes_pendientes': paquetes_pendientes,
+        'paquetes_pendientes': paquetes_pendientes
     })
 
 def pendientes_residente(request):
     # Obtener el apartamento del residente actual
     apartamento = request.user.id_apartamento
 
-    # Consultar los pendientes del apartamento del residente
+    # Recopilamos todos los pendientes en una sola lista
+    pendientes = []
+
+    # Agregar paquetes pendientes
     paquetes_pendientes = Paquete.objects.filter(apartamento=apartamento, estado='pendiente')
+    for paquete in paquetes_pendientes:
+        pendientes.append({
+            'id': paquete.id,
+            'tipo': 'paquete',
+            'proveedor': paquete.proveedor,
+            'nombre_producto': paquete.nombre_producto,
+            'fecha_anuncio': paquete.fecha_anuncio,
+            'fecha_estimacion': paquete.fecha_estimacion,
+            'apartamento': apartamento.numero,  # Incluimos el número de apartamento aquí
+        })
+
+    # Agregar domicilios pendientes
     domicilios_pendientes = Domicilio.objects.filter(apartamento=apartamento, estado='pendiente')
-    visitas_no_anunciadas = Visita.objects.filter(apartamento=apartamento, estado='no_anunciada')
+    for domicilio in domicilios_pendientes:
+        pendientes.append({
+            'id': domicilio.id,
+            'tipo': 'domicilio',
+            'proveedor': domicilio.proveedor,
+            'nombre_producto': domicilio.nombre_producto,
+            'fecha_anuncio': domicilio.fecha_anuncio,
+            'apartamento': apartamento.numero,  # Incluimos el número de apartamento aquí
+        })
+
+    # Agregar visitas no anunciadas
+    visitas_no_anunciadas = Visita.objects.filter(apartamento=apartamento, estado='pendiente', notificacion=True)
+    for visita in visitas_no_anunciadas:
+        pendientes.append({
+            'id': visita.id,
+            'tipo': 'visita',
+            'nombre_visitante': visita.nombre_visitante,
+            'apellido_visitante': visita.apellido_visitante,
+            'fecha_visita': visita.fecha_visita,
+            'apartamento': apartamento.numero,  # Incluimos el número de apartamento aquí
+        })
 
     context = {
-        'paquetes_pendientes': paquetes_pendientes,
-        'domicilios_pendientes': domicilios_pendientes,
-        'visitas_no_anunciadas': visitas_no_anunciadas,
+        'pendientes': pendientes,
     }
 
     return render(request, 'usuarios/residente/pendientes.html', context)
+
 
 
 def historial_residente(request):
     # Obtener el apartamento del residente actual
     apartamento = request.user.id_apartamento
 
-    # Historial de lo que ha recibido
-    paquetes_recibidos = Paquete.objects.filter(apartamento=apartamento, estado='confirmado')
-    domicilios_recibidos = Domicilio.objects.filter(apartamento=apartamento, estado='confirmado')
-    visitas_recibidas = Visita.objects.filter(apartamento=apartamento, estado='confirmada')
+    # Recopilamos todos los movimientos confirmados (visitas, domicilios, paquetes)
+    movimientos_confirmados = []
 
-    # Historial de lo que el residente ha enviado
-    visitas_enviadas = Visita.objects.filter(apartamento=apartamento)
-    domicilios_enviados = Domicilio.objects.filter(apartamento=apartamento)
-    paquetes_enviados = Paquete.objects.filter(apartamento=apartamento)
+    # Agregar visitas confirmadas
+    visitas_confirmadas = Visita.objects.filter(apartamento=apartamento, estado='confirmada')
+    for visita in visitas_confirmadas:
+        movimientos_confirmados.append({
+            'id': visita.id,
+            'tipo': 'visita',
+            'nombre_visitante': visita.nombre_visitante,
+            'apellido_visitante': visita.apellido_visitante,
+            'fecha_visita': visita.fecha_visita,
+            'apartamento': visita.apartamento,
+        })
+
+    # Agregar domicilios confirmados
+    domicilios_confirmados = Domicilio.objects.filter(apartamento=apartamento, estado='confirmado')
+    for domicilio in domicilios_confirmados:
+        movimientos_confirmados.append({
+            'id': domicilio.id,
+            'tipo': 'domicilio',
+            'proveedor': domicilio.proveedor,
+            'nombre_producto': domicilio.nombre_producto,
+            'fecha_anuncio': domicilio.fecha_anuncio,
+            'apartamento': domicilio.apartamento,
+        })
+
+    # Agregar paquetes confirmados
+    paquetes_confirmados = Paquete.objects.filter(apartamento=apartamento, estado='confirmado')
+    for paquete in paquetes_confirmados:
+        movimientos_confirmados.append({
+            'id': paquete.id,
+            'tipo': 'paquete',
+            'proveedor': paquete.proveedor,
+            'nombre_producto': paquete.nombre_producto,
+            'fecha_anuncio': paquete.fecha_anuncio,
+            'fecha_estimacion': paquete.fecha_estimacion,
+            'apartamento': paquete.apartamento,
+        })
 
     context = {
-        'paquetes_recibidos': paquetes_recibidos,
-        'domicilios_recibidos': domicilios_recibidos,
-        'visitas_recibidas': visitas_recibidas,
-        'visitas_enviadas': visitas_enviadas,
-        'domicilios_enviados': domicilios_enviados,
-        'paquetes_enviados': paquetes_enviados,
+        'movimientos_confirmados': movimientos_confirmados,
     }
 
     return render(request, 'usuarios/residente/historial.html', context)
 
 
+
+
 def historial_portero(request):
-    # Obtener todo lo que ha sido confirmado
-    visitas_confirmadas = Visita.objects.filter(estado='confirmada')
-    domicilios_confirmados = Domicilio.objects.filter(estado='confirmado')
-    paquetes_confirmados = Paquete.objects.filter(estado='confirmado')
+    # Obtener todas las confirmaciones de visitas, domicilios y paquetes
+    visitas_confirmadas = Visita.objects.filter(estado='confirmada').annotate(tipo=models.Value('visita', output_field=models.CharField()))
+    domicilios_confirmados = Domicilio.objects.filter(estado='confirmado').annotate(tipo=models.Value('domicilio', output_field=models.CharField()))
+    paquetes_confirmados = Paquete.objects.filter(estado='confirmado').annotate(tipo=models.Value('paquete', output_field=models.CharField()))
 
-    context = {
-        'visitas_confirmadas': visitas_confirmadas,
-        'domicilios_confirmados': domicilios_confirmados,
-        'paquetes_confirmados': paquetes_confirmados,
-    }
+    # Unir todos los movimientos en una sola lista
+    movimientos_confirmados = list(visitas_confirmadas) + list(domicilios_confirmados) + list(paquetes_confirmados)
 
-    return render(request, 'usuarios/portero/historial.html', context)
+    return render(request, 'usuarios/portero/historial.html', {
+        'movimientos_confirmados': movimientos_confirmados
+    })
 
+
+
+def notificaciones_residente(request):
+    apartamento = request.user.id_apartamento
+
+    # Obtener notificaciones de visitas, domicilios y paquetes pendientes
+    visitas_notificadas = Visita.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+    domicilios_notificados = Domicilio.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+    paquetes_notificados = Paquete.objects.filter(apartamento=apartamento, notificacion=True, estado='pendiente')
+
+    if request.method == 'POST':
+        solicitud_id = request.POST.get('solicitud_id')
+        tipo = request.POST.get('tipo')
+        accion = request.POST.get('accion')
+
+        if tipo == 'visita':
+            visita = get_object_or_404(Visita, id=solicitud_id)
+            visita.estado = 'confirmada' if accion == 'confirmar' else 'rechazada'
+            visita.notificacion = False
+            visita.save()
+        
+        elif tipo == 'domicilio':
+            domicilio = get_object_or_404(Domicilio, id=solicitud_id)
+            domicilio.estado = 'confirmado' if accion == 'confirmar' else 'rechazado'
+            domicilio.notificacion = False
+            domicilio.save()
+        
+        messages.success(request, "Acción realizada con éxito.")
+        return redirect('notificaciones_residente')
+
+    return render(request, 'usuarios/residente/notificaciones.html', {
+        'visitas_notificadas': visitas_notificadas,
+        'domicilios_notificados': domicilios_notificados,
+        'paquetes_notificados': paquetes_notificados,
+    })
+
+
+
+def crear_visita_inesperada(request):
+    if request.method == 'POST':
+        form = VisitaInesperadaForm(request.POST)
+        if form.is_valid():
+            visita = form.save(commit=False)
+            visita.estado = 'pendiente'
+            visita.notificacion = True  # Para que aparezca en los pendientes del residente
+            visita.save()
+            messages.success(request, "Visita inesperada registrada correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = VisitaInesperadaForm()
+    return render(request, 'usuarios/portero/crear_visita_inesperada.html', {'form': form})
+
+
+def crear_domicilio_inesperado(request):
+    if request.method == 'POST':
+        form = DomicilioInesperadoForm(request.POST)
+        if form.is_valid():
+            domicilio = form.save(commit=False)
+            domicilio.estado = 'pendiente'
+            domicilio.notificacion = True  # Para que aparezca en los pendientes del residente
+            domicilio.save()
+            messages.success(request, "Domicilio inesperado registrado correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = DomicilioInesperadoForm()
+    return render(request, 'usuarios/portero/crear_domicilio_inesperado.html', {'form': form})
+
+
+def crear_paquete_inesperado(request):
+    if request.method == 'POST':
+        form = PaqueteInesperadoForm(request.POST)
+        if form.is_valid():
+            paquete = form.save(commit=False)
+            paquete.estado = 'pendiente'
+            paquete.notificacion = True  # Para que aparezca en los pendientes del residente
+            paquete.save()
+            messages.success(request, "Paquete inesperado registrado correctamente.")
+            return redirect('portero_dashboard')
+    else:
+        form = PaqueteInesperadoForm()
+    return render(request, 'usuarios/portero/crear_paquete_inesperado.html', {'form': form})
+
+def perfil_usuario(request):
+
+    usuario = request.user
+    if request.method == 'POST':
+        form = FotoPerfilForm(request.POST, request.FILES, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Foto de perfil actualizada correctamente.")
+            return redirect('perfil_usuario')
+    else:
+        form = FotoPerfilForm(instance=usuario)
+
+    return render(request, 'usuarios/perfil_usuario.html', {
+        'usuario': usuario,
+        'form': form
+    })
+
+
+
+def confirmar_pendiente(request, pendiente_id, tipo):
+    if request.method == "POST":
+        if tipo == "paquete":
+            Paquete.objects.filter(id=pendiente_id).update(estado='confirmado')
+        elif tipo == "domicilio":
+            Domicilio.objects.filter(id=pendiente_id).update(estado='confirmado')
+        elif tipo == "visita":
+            Visita.objects.filter(id=pendiente_id).update(estado='confirmada')
+    return redirect('pendientes_residente')
