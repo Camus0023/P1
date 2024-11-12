@@ -161,3 +161,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Configuración de archivos de medios
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGOUT_REDIRECT_URL = '/login/'
+
+LOGOUT_REDIRECT_URL = 'login'

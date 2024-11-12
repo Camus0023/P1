@@ -44,6 +44,8 @@ urlpatterns = [
     path('portero/crear-domicilio-inesperado/', views.crear_domicilio_inesperado, name='crear_domicilio_inesperado'),
     path('portero/crear-paquete-inesperado/', views.crear_paquete_inesperado, name='crear_paquete_inesperado'),
 
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+
+     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

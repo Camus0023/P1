@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Usuario, Anuncio, Apartamento, Piso, Torre, Visita, Unidad, Paquete, Proveedor, Domicilio
-from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm,DomicilioInesperadoForm, PaqueteInesperadoForm, VisitaInesperadaForm
+from .forms import UsuarioForm, AnuncioForm, PaqueteForm, DomicilioForm, VisitaForm, DomicilioInesperadoForm, PaqueteInesperadoForm, VisitaInesperadaForm, FotoPerfilForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -361,9 +361,6 @@ def historial_portero(request):
 
 
 
-
-
-
 def notificaciones_residente(request):
     apartamento = request.user.id_apartamento
 
@@ -443,3 +440,19 @@ def crear_paquete_inesperado(request):
     else:
         form = PaqueteInesperadoForm()
     return render(request, 'usuarios/portero/crear_paquete_inesperado.html', {'form': form})
+
+def perfil_usuario(request):
+    usuario = request.user
+    if request.method == 'POST':
+        form = FotoPerfilForm(request.POST, request.FILES, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Foto de perfil actualizada correctamente.")
+            return redirect('perfil_usuario')
+    else:
+        form = FotoPerfilForm(instance=usuario)
+
+    return render(request, 'usuarios/perfil_usuario.html', {
+        'usuario': usuario,
+        'form': form
+    })

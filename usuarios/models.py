@@ -66,13 +66,14 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=255)
     id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE)
     id_apartamento = models.ForeignKey(Apartamento, null=True, blank=True, on_delete=models.SET_NULL)
+    foto_perfil = models.ImageField(upload_to='fotos_perfil/', null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
     objects = UsuarioManager()
 
-    USERNAME_FIELD = 'email'  # Usar email como nombre de usuario
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre', 'apellido']
 
     def __str__(self):
@@ -103,7 +104,6 @@ class Proveedor(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.get_tipo_display()}"
 
-# models.py
 class Visita(models.Model):
     ESTADOS = [
         ('pendiente', 'Pendiente'),
@@ -117,11 +117,24 @@ class Visita(models.Model):
     es_frecuente = models.BooleanField(default=False)
     fecha_expiracion_frecuente = models.DateTimeField(null=True, blank=True)
     estado = models.CharField(max_length=10, choices=ESTADOS, default='pendiente')
-    notificacion = models.BooleanField(default=False)  # Notificación al residente
+    notificacion = models.BooleanField(default=False)
     apartamento = models.ForeignKey(Apartamento, on_delete=models.CASCADE)
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
+    mensaje_qr = models.CharField(max_length=255, unique=True, blank=True, null=True)  # Campo para el mensaje QR único
 
-    def __str__(self):
-        return f"Visita de {self.nombre_visitante} {self.apellido_visitante} - {self.estado}"
+    def save(self, *args, **kwargs):
+        # Generar el mensaje QR si es frecuente y no tiene mensaje_qr
+        if self.es_frecuente and not self.mensaje_qr:
+            self.mensaje_qr = f"visita-{self.apartamento.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+            
+            # Generar código QR con el mensaje único
+            qr_image = qrcode.make(self.mensaje_qr)
+            buffer = BytesIO()
+            qr_image.save(buffer, format='PNG')
+            file_name = f'{self.nombre_visitante}_{self.apellido_visitante}_qr.png'
+            self.qr_code.save(file_name, File(buffer), save=False)
+            
+        super().save(*args, **kwargs)
 
 
 class Domicilio(models.Model):

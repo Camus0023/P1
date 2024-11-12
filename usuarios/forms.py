@@ -116,3 +116,17 @@ class PaqueteInesperadoForm(forms.ModelForm):
             'fecha_anuncio': 'Fecha de Llegada',
             'apartamento': 'Apartamento'
         }
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'email', 'foto_perfil']
+        widgets = {
+            'email': forms.EmailInput(attrs={'readonly': 'readonly'}),  # Solo lectura para email
+        }
+
+
+class FotoPerfilForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['foto_perfil']

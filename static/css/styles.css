@@ -1,35 +1,50 @@
 /* styles.css */
 body {
-    background-color: #e3f2fd;
+    background-color: #bbd9dd; /* Fondo general */
     font-family: 'Arial', sans-serif;
 }
 
 h1 {
-    color: #149981;
+    color: #105A63; /* Color principal */
 }
 
+/* Aumentar altura del navbar */
 .navbar {
-    background-color: #149981 !important;
+    height: 80px; /* Ajusta la altura a tu preferencia */
+    background-color: #105A63 !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: center;
 }
 
-.navbar-brand {
-    color: #ffffff !important;
-    font-weight: bold;
+/* Estilo para el logo */
+.navbar-brand img {
+    height: 60px; /* Ajusta el tamaño del logo */
+    width: auto;
 }
 
+/* Estilo para los iconos de los botones */
 .navbar-nav .nav-link {
+    display: flex;
+    align-items: center;
     color: #ffffff !important;
+    font-size: 18px; /* Ajusta el tamaño de la fuente si es necesario */
 }
+
+.navbar-nav .nav-link img {
+    height: 24px; /* Tamaño del icono */
+    width: auto;
+    margin-right: 8px; /* Espacio entre el icono y el texto */
+}
+
 
 .btn-primary {
-    background-color: #149981 !important;
-    border-color: #149981 !important;
+    background-color: #105A63 !important; /* Color principal */
+    border-color: #105A63 !important;
 }
 
 .btn-primary:hover, .btn-primary:focus {
-    background-color: #003366; /* Cambia a un color más oscuro o diferente */
-    border-color: #003366;
+    background-color: #2F3E41; /* Color neutro oscuro para hover */
+    border-color: #2F3E41;
 }
 
 .btn-group.dropup .btn {
@@ -42,7 +57,7 @@ h1 {
 
 .btn-group.dropup .dropdown-menu {
     border-radius: 12px !important;
-    background-color: #149981 !important;
+    background-color: #4B8C91 !important; /* Acento suave */
     padding: 0;
 }
 
@@ -53,7 +68,7 @@ h1 {
 }
 
 .btn-group.dropup .dropdown-item:hover, .btn-group.dropup .dropdown-item:focus {
-    background-color: #003366 !important;
+    background-color: #2F3E41 !important; /* Hover neutro oscuro */
     color: #ffffff !important;
 }
 
@@ -63,19 +78,19 @@ h1 {
 }
 
 .btn-secondary {
-    background-color: #0d4f43;
-    border-color: #0d4f43;
+    background-color: #4B8C91; /* Acento suave */
+    border-color: #4B8C91;
 }
 
 .btn-secondary:hover, .btn-secondary:focus {
-    background-color: #0d4f43;
-    border-color: #0d4f43;
+    background-color: #2F3E41; /* Neutro oscuro en hover */
+    border-color: #2F3E41;
     color: #ffffff;
 }
 
 .dropdown-menu {
-    background-color: #0d4f43;
-    border: 1px solid #149981;
+    background-color: #4B8C91; /* Acento suave */
+    border: 1px solid #105A63; /* Color principal */
 }
 
 .dropdown-menu .dropdown-item {
@@ -83,6 +98,41 @@ h1 {
 }
 
 .dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item:focus {
-    background-color: #149981;
+    background-color: #105A63; /* Color principal en hover */
     color: #ffffff;
+}
+
+
+/* Fondo de pantalla de login */
+.login-background {
+    background-color: #bbd9dd; /* Fondo suave */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Estilos para el contenedor del formulario de login */
+.card {
+    border-color: #105A63;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #e3f4f6;
+}
+
+/* Colores personalizados para los botones y elementos */
+.form-control:focus {
+    border-color: #105A63;
+    box-shadow: 0 0 0 0.2rem rgba(16, 90, 99, 0.25);
+}
+
+.btn-primary {
+    background-color: #105A63;
+    border-color: #105A63;
+}
+
+.btn-primary:hover {
+    background-color: #2F3E41;
+    border-color: #2F3E41;
 }
