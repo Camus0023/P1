@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center" style="color: #149981;">Solicitudes para Apartamento {{ apartamento.numero }}</h1>
+    <h1 class="text-center" >Solicitudes para Apartamento {{ apartamento.numero }}</h1>
     
     <!-- Verificación de QR -->
     <h2 class="mt-4">Verificar QR de Visita Frecuente</h2>
     <form method="POST" enctype="multipart/form-data" action="{% url 'verificar_qr' apartamento.id %}">
         {% csrf_token %}
         <div class="mb-3">
-            <label for="qr_image" class="form-label" style="color: #149981;">Subir imagen del QR</label>
+            <label for="qr_image" class="form-label" >Subir imagen del QR</label>
             <input type="file" class="form-control" id="qr_image" name="qr_image" accept="image/*" required>
         </div>
         <button type="submit" class="btn btn-primary">Verificar QR</button>
