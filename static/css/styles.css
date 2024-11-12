@@ -10,7 +10,7 @@ h1 {
 
 /* Aumentar altura del navbar */
 .navbar {
-    height: 80px; /* Ajusta la altura a tu preferencia */
+    height: 120px; /* Ajusta la altura a tu preferencia */
     background-color: #105A63 !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     align-items: center;
@@ -18,7 +18,7 @@ h1 {
 
 /* Estilo para el logo */
 .navbar-brand img {
-    height: 60px; /* Ajusta el tamaño del logo */
+    height: 200px; /* Ajusta el tamaño del logo */
     width: auto;
 }
 
@@ -31,7 +31,7 @@ h1 {
 }
 
 .navbar-nav .nav-link img {
-    height: 24px; /* Tamaño del icono */
+    height: 40px; /* Tamaño del icono */
     width: auto;
     margin-right: 8px; /* Espacio entre el icono y el texto */
 }
@@ -89,7 +89,7 @@ h1 {
 }
 
 .dropdown-menu {
-    background-color: #4B8C91; /* Acento suave */
+    background-color: #105A63; /* Acento suave */
     border: 1px solid #105A63; /* Color principal */
 }
 
@@ -102,6 +102,21 @@ h1 {
     color: #ffffff;
 }
 
+/* Estilo para la imagen del botón de perfil */
+.dropdown-toggle img {
+    height: 50px; /* Aumenta la altura de la imagen */
+    width: 50px; /* Aumenta el ancho de la imagen */
+    border-radius: 50%; /* Mantiene la forma circular */
+    
+}
+
+/* Estilo para el botón desplegable */
+.dropdown-toggle {
+    padding: 20px 25px; /* Aumenta el relleno del botón para hacerlo más grande */
+    font-size: 20px; /* Aumenta el tamaño de la fuente del texto dentro del botón, si hay texto */
+    border-color: #105A63;
+    background-color: #105A63
+}
 
 /* Fondo de pantalla de login */
 .login-background {
@@ -135,4 +150,16 @@ h1 {
 .btn-primary:hover {
     background-color: #2F3E41;
     border-color: #2F3E41;
+}
+
+/* Estilo para el indicador de notificación */
+.notification-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #4B8C91;
+    border-radius: 50%;
+    border: 2px solid white; /* Opcional: borde blanco para mejorar visibilidad */
 }

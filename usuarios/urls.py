@@ -40,9 +40,11 @@ urlpatterns = [
     # Nueva ruta para las notificaciones del residente
     path('residente/notificaciones/', views.notificaciones_residente, name='notificaciones_residente'),
 
+
     path('portero/crear-visita-inesperada/', views.crear_visita_inesperada, name='crear_visita_inesperada'),
     path('portero/crear-domicilio-inesperado/', views.crear_domicilio_inesperado, name='crear_domicilio_inesperado'),
     path('portero/crear-paquete-inesperado/', views.crear_paquete_inesperado, name='crear_paquete_inesperado'),
+    path('confirmar/<int:pendiente_id>/<str:tipo>/', views.confirmar_pendiente, name='confirmar_pendiente'),
 
     path('perfil/', views.perfil_usuario, name='perfil_usuario'),
 

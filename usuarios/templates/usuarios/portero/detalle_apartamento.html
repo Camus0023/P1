@@ -4,6 +4,7 @@
 <div class="container mt-4">
     <h1 class="text-center" style="color: #149981;">Solicitudes para Apartamento {{ apartamento.numero }}</h1>
     
+    <!-- Verificación de QR -->
     <h2 class="mt-4">Verificar QR de Visita Frecuente</h2>
     <form method="POST" enctype="multipart/form-data" action="{% url 'verificar_qr' apartamento.id %}">
         {% csrf_token %}
@@ -14,58 +15,82 @@
         <button type="submit" class="btn btn-primary">Verificar QR</button>
     </form>
 
-    <h2 class="mt-4">Visitas Pendientes</h2>
-    <ul>
+    <!-- Contenedores para solicitudes pendientes -->
+    <div class="row mt-4">
+        <!-- Visitas Pendientes -->
         {% for visita in visitas_pendientes %}
-        <li>
-            {{ visita.nombre_visitante }} - 
-            <form method="POST" style="display: inline;">
-                {% csrf_token %}
-                <input type="hidden" name="solicitud_id" value="{{ visita.id }}">
-                <input type="hidden" name="tipo" value="visita">
-                <button type="submit" class="btn btn-success">Confirmar</button>
-            </form>
-        </li>
+        <div class="col-12 mb-3">
+            <div class="card border-primary">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">Visitante: {{ visita.nombre_visitante }} {{ visita.apellido_visitante }}</h6>
+                        <p class="card-text mb-0">
+                            <strong>Fecha de visita:</strong> {{ visita.fecha_visita|date:"d M Y H:i" }}<br>
+                            <strong>Frecuente:</strong> {{ visita.es_frecuente|yesno:"Sí,No" }}
+                        </p>
+                        {% if visita.es_frecuente and visita.qr_code %}
+                            <p class="mt-2"><strong>Código QR:</strong></p>
+                            <img src="{{ visita.qr_code.url }}" alt="Código QR de la visita frecuente" style="max-width: 100px;">
+                        {% endif %}
+                    </div>
+                    <form method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="solicitud_id" value="{{ visita.id }}">
+                        <input type="hidden" name="tipo" value="visita">
+                        <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% empty %}
-        <p>No hay visitas pendientes.</p>
         {% endfor %}
-    </ul>
 
-    <!-- Mostrar domicilios y paquetes de forma organizada -->
-    <h2 class="mt-4">Domicilios Pendientes</h2>
-    <ul>
+        <!-- Domicilios Pendientes -->
         {% for domicilio in domicilios_pendientes %}
-        <li>
-            <strong>Proveedor:</strong> {{ domicilio.proveedor.nombre }}<br>
-            <strong>Producto:</strong> {{ domicilio.nombre_producto }}<br>
-            <form method="POST" style="display: inline;">
-                {% csrf_token %}
-                <input type="hidden" name="solicitud_id" value="{{ domicilio.id }}">
-                <input type="hidden" name="tipo" value="domicilio">
-                <button type="submit" class="btn btn-success">Confirmar</button>
-            </form>
-        </li>
+        <div class="col-12 mb-3">
+            <div class="card border-success">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-text mb-0">
+                            <strong>Proveedor:</strong> {{ domicilio.proveedor.nombre }}<br>
+                            <strong>Producto:</strong> {{ domicilio.nombre_producto }}
+                        </p>
+                    </div>
+                    <form method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="solicitud_id" value="{{ domicilio.id }}">
+                        <input type="hidden" name="tipo" value="domicilio">
+                        <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% empty %}
-        <p>No hay domicilios pendientes.</p>
         {% endfor %}
-    </ul>
 
-    <h2 class="mt-4">Paquetes Pendientes</h2>
-    <ul>
+        <!-- Paquetes Pendientes -->
         {% for paquete in paquetes_pendientes %}
-        <li>
-            <strong>Proveedor:</strong> {{ paquete.proveedor.nombre }}<br>
-            <strong>Producto:</strong> {{ paquete.nombre_producto }}<br>
-            <form method="POST" style="display: inline;">
-                {% csrf_token %}
-                <input type="hidden" name="solicitud_id" value="{{ paquete.id }}">
-                <input type="hidden" name="tipo" value="paquete">
-                <button type="submit" class="btn btn-success">Confirmar</button>
-            </form>
-        </li>
+        <div class="col-12 mb-3">
+            <div class="card border-warning">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-text mb-0">
+                            <strong>Proveedor:</strong> {{ paquete.proveedor.nombre }}<br>
+                            <strong>Producto:</strong> {{ paquete.nombre_producto }}<br>
+                            <strong>Fecha estimada de llegada:</strong> {{ paquete.fecha_estimacion|date:"d M Y" }}
+                        </p>
+                    </div>
+                    <form method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="solicitud_id" value="{{ paquete.id }}">
+                        <input type="hidden" name="tipo" value="paquete">
+                        <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% empty %}
-        <p>No hay paquetes pendientes.</p>
         {% endfor %}
-    </ul>
+    </div>
 </div>
 {% endblock %}

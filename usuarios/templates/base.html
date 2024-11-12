@@ -13,7 +13,11 @@
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg">
         <!-- Logo en el lado izquierdo -->
-        <a class="navbar-brand ms-3" >
+        <a class="navbar-brand ms-3" 
+           href="{% if rol_usuario == 'Residente' %}{% url 'residente_dashboard' %}
+                  {% elif rol_usuario == 'Portero' %}{% url 'portero_dashboard' %}
+                  {% elif rol_usuario == 'Administracion' %}{% url 'administrador_dashboard' %}
+                  {% endif %}">
             <img src="{% static 'img/logoblanco.png' %}" alt="Logo">
         </a>
 
@@ -35,17 +39,25 @@
                         </a>
                     {% endif %}
                 </li>
-                <li class="nav-item me-3">
+                
+                <li class="nav-item me-3 position-relative">
                     {% if rol_usuario == "Residente" %}
                         <a class="nav-link" href="{% url 'pendientes_residente' %}">
                             <img src="{% static 'img/icon_pendientes.png' %}" alt="Pendientes Icono"> Pendientes
+                            {% if tiene_pendientes %}
+                                <span class="notification-indicator"></span>
+                            {% endif %}
                         </a>
                     {% elif rol_usuario == "Portero" %}
                         <a class="nav-link" href="{% url 'pendientes_portero' %}">
                             <img src="{% static 'img/icon_pendientes.png' %}" alt="Pendientes Icono"> Pendientes
+                            {% if tiene_pendientes %}
+                                <span class="notification-indicator"></span>
+                            {% endif %}
                         </a>
                     {% endif %}
                 </li>
+                
                 <li class="nav-item me-3">
                     {% if rol_usuario == "Residente" %}
                         <a class="nav-link" href="{% url 'historial_residente' %}">
@@ -63,7 +75,7 @@
             <div class="dropdown ms-3">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     {% if request.user.foto_perfil %}
-                        <img src="{{ request.user.foto_perfil.url }}" alt="Foto de perfil" class="rounded-circle" style="width: 30px; height: 30px;">
+                        <img src="{{ request.user.foto_perfil.url }}" alt="Foto de perfil" class="rounded-circle">
                     {% else %}
                         Perfil
                     {% endif %}

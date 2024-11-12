@@ -2,72 +2,46 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">Historial de Residente</h1>
+    <h1 class="text-center" style="color: #149981;">Historial del Residente</h1>
 
-    <h2 class="mt-4">Paquetes Recibidos</h2>
-    <ul>
-        {% for paquete in paquetes_recibidos %}
-        <li>
-            Paquete de {{ paquete.proveedor.nombre }} - Fecha Estimada: {{ paquete.fecha_estimacion }}
-        </li>
-        {% empty %}
-        <p>No has recibido paquetes.</p>
-        {% endfor %}
-    </ul>
+    {% for movimiento in movimientos_confirmados %}
+    <div class="card my-2 shadow-sm" style="border-left: 5px solid #149981; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalMovimiento{{ movimiento.id }}">
+        <div class="card-body">
+            <p class="mb-0"><strong>{{ movimiento.tipo|title }} Confirmado</strong> en su apartamento {{ movimiento.apartamento.numero }}</p>
+        </div>
+    </div>
 
-    <h2 class="mt-4">Domicilios Recibidos</h2>
-    <ul>
-        {% for domicilio in domicilios_recibidos %}
-        <li>
-            Domicilio de {{ domicilio.proveedor.nombre }} - Producto: {{ domicilio.nombre_producto }}
-        </li>
-        {% empty %}
-        <p>No has recibido domicilios.</p>
-        {% endfor %}
-    </ul>
-
-    <h2 class="mt-4">Visitas Recibidas</h2>
-    <ul>
-        {% for visita in visitas_recibidas %}
-        <li>
-            Visita de {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Fecha: {{ visita.fecha_visita }}
-        </li>
-        {% empty %}
-        <p>No has recibido visitas.</p>
-        {% endfor %}
-    </ul>
-
-    <h2 class="mt-4">Visitas Enviadas</h2>
-    <ul>
-        {% for visita in visitas_enviadas %}
-        <li>
-            Visitante: {{ visita.nombre_visitante }} {{ visita.apellido_visitante }} - Estado: {{ visita.estado }}
-        </li>
-        {% empty %}
-        <p>No has enviado visitas.</p>
-        {% endfor %}
-    </ul>
-
-    <h2 class="mt-4">Domicilios Enviados</h2>
-    <ul>
-        {% for domicilio in domicilios_enviados %}
-        <li>
-            Producto: {{ domicilio.nombre_producto }} - Estado: {{ domicilio.estado }}
-        </li>
-        {% empty %}
-        <p>No has enviado domicilios.</p>
-        {% endfor %}
-    </ul>
-
-    <h2 class="mt-4">Paquetes Enviados</h2>
-    <ul>
-        {% for paquete in paquetes_enviados %}
-        <li>
-            Producto: {{ paquete.nombre_producto }} - Estado: {{ paquete.estado }}
-        </li>
-        {% empty %}
-        <p>No has enviado paquetes.</p>
-        {% endfor %}
-    </ul>
+    <!-- Modal de Detalle del Movimiento -->
+    <div class="modal fade" id="modalMovimiento{{ movimiento.id }}" tabindex="-1" aria-labelledby="modalLabel{{ movimiento.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel{{ movimiento.id }}">{{ movimiento.tipo|title }} Confirmado - Apartamento {{ movimiento.apartamento.numero }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if movimiento.tipo == "visita" %}
+                        <p><strong>Visitante:</strong> {{ movimiento.nombre_visitante }} {{ movimiento.apellido_visitante }}</p>
+                        <p><strong>Fecha de visita:</strong> {{ movimiento.fecha_visita|date:"d M Y, H:i" }}</p>
+                    {% elif movimiento.tipo == "domicilio" %}
+                        <p><strong>Proveedor:</strong> {{ movimiento.proveedor.nombre }}</p>
+                        <p><strong>Producto:</strong> {{ movimiento.nombre_producto }}</p>
+                        <p><strong>Fecha de anuncio:</strong> {{ movimiento.fecha_anuncio|date:"d M Y, H:i" }}</p>
+                    {% elif movimiento.tipo == "paquete" %}
+                        <p><strong>Proveedor:</strong> {{ movimiento.proveedor.nombre }}</p>
+                        <p><strong>Producto:</strong> {{ movimiento.nombre_producto }}</p>
+                        <p><strong>Fecha de anuncio:</strong> {{ movimiento.fecha_anuncio|date:"d M Y, H:i" }}</p>
+                        <p><strong>Fecha estimada de llegada:</strong> {{ movimiento.fecha_estimacion|date:"d M Y" }}</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center mt-4">No hay movimientos confirmados en su historial.</p>
+    {% endfor %}
 </div>
 {% endblock %}
