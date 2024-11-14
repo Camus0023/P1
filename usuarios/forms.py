@@ -7,13 +7,17 @@ class UsuarioForm(forms.ModelForm):
         model = Usuario
         fields = ['nombre', 'apellido', 'email', 'password', 'id_rol', 'id_apartamento']
         widgets = {
-            'password': forms.PasswordInput(),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'id_rol': forms.Select(attrs={'class': 'form-select'}),
+            'id_apartamento': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def save(self, commit=True):
-        # Sobrescribir el método save para encriptar la contraseña
         usuario = super(UsuarioForm, self).save(commit=False)
-        usuario.password = make_password(self.cleaned_data['password'])  # Encriptar la contraseña
+        usuario.password = make_password(self.cleaned_data['password'])
         if commit:
             usuario.save()
         return usuario
@@ -22,6 +26,10 @@ class AnuncioForm(forms.ModelForm):
     class Meta:
         model = Anuncio
         fields = ['titulo', 'contenido']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'contenido': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
 
 # Formulario para registrar una nueva visita
